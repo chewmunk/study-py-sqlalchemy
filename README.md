@@ -1,6 +1,12 @@
+# Welcome to my study room
 
-pip installation
+Let's study sqlalchemy!
+
+
+
+Installtion sqlalchemy
 ```
+python -m venv venv 
 pip install sqlalchemy
 ```
 
