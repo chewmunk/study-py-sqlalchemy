@@ -112,11 +112,59 @@ def test_select_table():
     for s in result:
         logging.info(s)
 
+def test_textual_sql():
+    from sqlalchemy import text
+    t = text('SELECT * FROM students')
+    conn = connect()
+    result = conn.execute(t)
+
+    for row in result:
+        logging.info(row)
+
+    # select students.name, students.lastname from students where students.name between ? and ?
+    # s = text("select students.name, students.lastname from students where students.name between :x and :y")
+    # The values of x = ’A’ and y = ’L’ are passed as parameters. Result is a list of rows with names between ‘A’ and ‘L’ −
+    # result = conn.execute(s, x = 'A', y = 'L').fetchall() # parameter를 넣을 수 있음 
+
+
+    # for row in result:
+        # logging.info(row)
+
+    from sqlalchemy import text
+    stmt = text("SELECT * FROM students WHERE students.name BETWEEN :x AND :y")
+    result = conn.execute(stmt, {"x": "A", "y": "L"})
+
+    for row in result:
+        logging.info(row)
+
+    from sqlalchemy.sql import select
+    s = select([text("students.name, students.lastname from students")]).where(text("students.name between :x and :y"))
+    result = conn.execute(s, x = 'A', y = 'L').fetchall()
+
+    for row in result:
+        logging.info(row) 
+
+    from sqlalchemy import and_
+    from sqlalchemy import select
+
+    s = select([text('* from students')])\
+        .where(
+            and_(
+                text('students.name between :x and :y'),
+                text('students.id>2')
+            )
+        )
+    result = conn.execute(s, {"x": "A", "y": "L"}).fetchall()
+
+    for row in result:
+        logging.info(row)
+
 def main():
     # test_create_table()
     # test_insert_data_in_table()
     # test_insert_multiple_in_table()
-    test_select_table()
+    # test_select_table()
+    test_textual_sql()
 
 if __name__ == '__main__':
     main()
