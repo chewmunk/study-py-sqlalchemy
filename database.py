@@ -159,12 +159,58 @@ def test_textual_sql():
     for row in result:
         logging.info(row)
 
+def test_aliases():
+    from sqlalchemy import select
+    meta = MetaData()
+    students = Table(
+        'students', meta,
+        Column('id', Integer, primary_key = True),
+        Column('name', String),
+        Column('lastname', String),
+    ) 
+
+    st = students.alias('a')
+    s = select([st]).where(st.c.id > 2)
+
+    conn = connect()
+    result = conn.execute(s).fetchall()
+
+    for row in result:
+        logging.info(row)
+
+def test_update_sql():
+    conn = connect()
+    meta = MetaData()
+    students = Table(
+        'students', meta,
+        Column('id', Integer, primary_key = True),
+        Column('name', String),
+        Column('lastname', String),
+    )
+    # 'UPDATE students SET lastname = :lastname WHERE students.lastname = :lastname_1'
+
+    stmt = students.update().where(students.c.lastname == 'Khanna').values(lastname = 'Kapoor')
+    conn.execute(stmt)
+    s = students.select()
+
+    result = conn.execute(s).fetchall()
+
+    for row in result:
+        logging.info(row)
+    
+    # table.update().where(conditions).values(SET expressions)
+
+
+    
+
 def main():
     # test_create_table()
     # test_insert_data_in_table()
     # test_insert_multiple_in_table()
     # test_select_table()
-    test_textual_sql()
-
+    # test_textual_sql()
+    # https://www.tutorialspoint.com/sqlalchemy/sqlalchemy_core_using_aliases.htm
+    # test_aliases()
+    test_update_sql()
 if __name__ == '__main__':
     main()
